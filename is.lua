@@ -1,4 +1,10 @@
-local is = {}
+local is = {
+  ["function"] = function (x) return type(x) == "function" end;
+}
+
+function is.opt(value, check)
+  return value == nil or check(value)
+end
 
 function is.callable(x)
   if type(x) == "function" then return true end
@@ -54,12 +60,28 @@ function is.table(value)
   return type(value) == "table"
 end
 
+function is.table_of(value, check)
+  if type(value) ~= "table" then return false end
+  for i = 1, #value do
+    if not check(value[i]) then return false end
+  end
+  return true
+end
+
 function is.kind(value, kind)
   local value_type = type(value)
   if value_type ~= "table" then return value_type == kind end
   local meta = getmetatable(value)
   return type(meta) == "table"
      and meta._kind_ == kind
+end
+
+function is.metakind(value, kind)
+  local meta = getmetatable(value)
+  if type(meta) ~= "table" then return end
+  local meta_kind = meta._kind
+  return type(meta_kind) == "string"
+     and meta_kind:find(kind)
 end
 
 return is
